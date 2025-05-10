@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(success)      // pinta los eventos
       .catch(failure);    // si algo falla
     },
-
+ 
 
     selectable:true,
 
