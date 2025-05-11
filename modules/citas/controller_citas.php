@@ -105,66 +105,85 @@ if ($accion === 'listar') {
     exit;
 }
 
-// dentro de "guardar" ANTES del INSERT/UPDATE
-$solapa = $pdo->prepare("
-  SELECT COUNT(*) FROM citas
-  WHERE medico_id = ? AND id <> ?
-    AND start < ? AND end   > ?
-");
+
 
 
 /* ---------- GUARDAR / ACTUALIZAR ---------- */
+/*  ── controller_citas.php  ────────── */
 if ($accion === 'guardar') {
 
-    // ←‑‑  aquí traemos todos los datos del formulario
-    $id          = $_POST['id']          ?? '';   //  ←  AHORA SÍ existe
-    $paciente_id = $_POST['paciente_id'] ?? null;
-    $medico_id   = $_POST['medico_id']   ?? null;
-    $start       = $_POST['start']       ?? null;
-    $end         = $_POST['end']         ?? null;
+    $id          = $_POST['id']          ?? '';
+    $paciente_id = $_POST['paciente_id'] ?? '';
+    $medico_id   = $_POST['medico_id']   ?? '';
+    $start       = $_POST['start']       ?? '';
+    $end         = $_POST['end']         ?? '';
     $title       = $_POST['title']       ?? '';
 
-    $solapa->execute([$medico_id, $id ?: 0, $end, $start]);
-    if ($solapa->fetchColumn()){
-        echo json_encode(['error'=>'El médico ya tiene una cita en ese horario.']);
+    /* ── 1) ¿hay otra cita que se cruce con este médico? ───────── */
+    $sqlSolape = "
+        SELECT 1
+          FROM citas
+         WHERE medico_id = ?
+           AND start <  ?
+           AND end   >  ?
+           ".($id ? "AND id <> ?" : "")."
+         LIMIT 1";
+    $params = $id ? [$medico_id, $end, $start, $id]
+                  : [$medico_id, $end, $start];
+
+    $haySolape = $pdo->prepare($sqlSolape);
+    $haySolape->execute($params);
+
+    if ($haySolape->fetchColumn()){
+        echo json_encode(['error'=>'Ese médico ya tiene una cita en ese intervalo.']);
         exit;
     }
 
-    if (!$paciente_id || !$medico_id) {
-        echo json_encode(['error'=>'Faltan paciente o médico']);
-        exit;
+    // 1) ¿está dentro de algún horario?
+   /* $okHorario = $pdo->prepare("
+      SELECT 1 FROM horarios_atencion
+      WHERE medico_id = ?
+        AND dia_semana = DAYOFWEEK(?) - 1          -- MySQL: domingo=1
+        AND TIME(?) BETWEEN hora_inicio AND hora_fin
+        AND TIME(?) BETWEEN hora_inicio AND hora_fin");
+    $okHorario->execute([$medico_id, $start, $start, $end]);
+    if(!$okHorario->fetchColumn()){
+        echo json_encode(['error'=>'Fuera del horario de atención']); exit;
+    }*/
+
+    // 2) ¿choca con un bloqueo?
+    $chocaBloqueo = $pdo->prepare("
+      SELECT 1 FROM bloqueos
+      WHERE medico_id = ?
+        AND ? < fecha_fin  AND ? > fecha_inicio");
+    $chocaBloqueo->execute([$medico_id, $start, $end]);
+    if($chocaBloqueo->fetchColumn()){
+        echo json_encode(['error'=>'El médico está bloqueado en ese rango']); exit;
     }
 
-    if ($id) {
-        // actualizar
+
+
+    /* ── 2) INSERT/UPDATE normal (ya no se solapan) ───────────── */
+    if ($id){
         $sql = "UPDATE citas
-                   SET paciente_id = ?,
-                       medico_id   = ?,
+                   SET paciente_id = ?, medico_id = ?,
                        servicio_id = (SELECT servicio_id FROM medicos WHERE id = ?),
-                       start = ?,  end = ?,  title = ?
+                       start = ?, end = ?, title = ?
                  WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $paciente_id, $medico_id, $medico_id,
-            $start, $end, $title,
-            $id
-        ]);
-    } else {
-        // insertar
+        $pdo->prepare($sql)
+            ->execute([$paciente_id,$medico_id,$medico_id,$start,$end,$title,$id]);
+    }else{
         $sql = "INSERT INTO citas
-                  (paciente_id, medico_id, servicio_id, start, end, title)
-                VALUES
-                  (?,?,(SELECT servicio_id FROM medicos WHERE id = ?),?,?,?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $paciente_id, $medico_id, $medico_id,
-            $start, $end, $title
-        ]);
+                  (paciente_id,medico_id,servicio_id,start,end,title)
+                VALUES (?,?,(SELECT servicio_id FROM medicos WHERE id = ?),?,?,?)";
+        $pdo->prepare($sql)
+            ->execute([$paciente_id,$medico_id,$medico_id,$start,$end,$title]);
     }
 
     echo json_encode(['success'=>true]);
     exit;
 }
+
 
 
 if($accion === 'borrar') {
