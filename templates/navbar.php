@@ -20,7 +20,13 @@ if (!isset($_SESSION['usuario'])) {
           <a class="nav-link" href="/equinoccio-crm/modules/servicios/view.php">Servicios</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/equinoccio-crm/modules/medicos/view.php">Médicos</a>
+          <a class="nav-link" href="/equinoccio-crm/modules/medicos/view.php">Admin. Médicos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/equinoccio-crm/modules/medicos/crear_medico.php">Crear Médico</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/equinoccio-crm/modules/atencion/view.php">Atención</a>
         </li>
         <?php if ($_SESSION['nivel'] === 'admin'): ?>
         <li class="nav-item">

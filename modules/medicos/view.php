@@ -8,7 +8,7 @@
   <button id="btnNuevo" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalMedico">➕ Nuevo Médico</button>
   <table id="tablaMedicosDT" class="table table-bordered table-striped" style="width:100%">
       <thead>
-        <tr><th>Nombre</th><th>Servicio</th><th>Acciones</th></tr>
+        <tr><th>Nombre</th><th>Servicio</th><th>Usuario</th><th>Acciones</th></tr>
       </thead>
       <tbody></tbody>
   </table>
@@ -24,9 +24,26 @@
         <input type="hidden" name="id" id="id">
         <div class="mb-3"><label class="form-label">Nombre</label>
              <input type="text" class="form-control" name="nombre" id="nombre" required></div>
+          <div class="mb-3">
+               <label class="form-label">Usuario</label>
+               <input type="text" class="form-control" name="usuario" id="usuario" required>
+          </div>
+          <div class="mb-3">
+               <label class="form-label">Contraseña Temporal</label>
+               <div class="input-group">
+                    <input type="password" class="form-control" name="clave" id="clave" disabled>
+                    <button type="button" class="btn btn-outline-secondary" id="btnEditarClave" title="Editar contraseña">
+                         🔒
+                    </button>
+               </div>
+          </div>
+
+
+     
         <div class="mb-3"><label class="form-label">Servicio</label>
              <select class="form-select" name="servicio_id" id="servicio_id" required></select></div>
         <button type="submit" class="btn btn-success">Guardar</button>
+          <div id="mensajeError"></div>
      </form>
   </div>
  </div></div>

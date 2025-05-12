@@ -2,6 +2,8 @@
 session_start();
 require 'config/db.php';
 echo password_hash('osito', PASSWORD_DEFAULT);
+echo "<br>";
+echo password_hash('pupi', PASSWORD_DEFAULT);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = $_POST['usuario'] ?? '';
@@ -14,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($clave, $user['clave'])) {
         $_SESSION['usuario'] = $user['usuario'];
         $_SESSION['nivel'] = $user['nivel'];
+        $_SESSION['id_usuario'] = $user['id'];
         header("Location: index.php");
         exit;
     } else {

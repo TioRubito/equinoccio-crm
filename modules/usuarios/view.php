@@ -53,7 +53,8 @@ require '../../config/db.php';
                 <label for="nivel" class="form-label">Nivel</label>
                 <select class="form-select" id="nivel" name="nivel">
                     <option value="admin">Admin</option>
-                    <option value="operador">Operador</option>
+                    <option value="medico">Médico</option>
+                    <option value="operador">Operador</option>                    
                 </select>
             </div>
             <button type="submit" class="btn btn-success">Guardar</button>

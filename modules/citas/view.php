@@ -68,7 +68,21 @@ require '../../config/db.php';
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales-all.min.js"></script>
+<style>
+  /* día del mes (grid month) */
+    #calendar .fc-daygrid-day-frame {
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* contenedor de eventos: que haga scroll cuando haya muchos */
+    #calendar .fc-daygrid-day-events {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+</style>
 <script>
 $(function(){
 
@@ -99,6 +113,52 @@ $(function(){
         center: 'title',
         right : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
       },
+      // máximo de filas de evento por celda
+      dayMaxEventRows: 3,   // si hay más, aparecerá "+ X more"
+      dayMaxEvents: true,   // lo mismo para la vista list
+
+      // opcional: para que muestre siempre "+ más"
+      moreLinkClick: 'popover',
+
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      },
+
+      /******************************************************************************* */
+        /*eventSources: [
+
+          // ——— Tus citas normales ———
+          {
+            id        : 'citas',
+            url       : 'controller_citas.php',
+            method    : 'POST',
+            extraParams: () => ({
+              accion: 'listar',
+              start : calendar.view.activeStart.toISOString().slice(0,10),
+              end   : calendar.view.activeEnd  .toISOString().slice(0,10)
+            })
+          },
+
+          // ——— Horario de atención (fondo verde claro) ———
+          {
+            id      : 'horarioTrabajo',
+            events  : [],                // lo llenamos luego
+            display : 'background',
+            color   : '#d4edda'          // verde claro
+          },
+
+          // ——— Bloqueos (fondo gris oscuro) ———
+          {
+            id      : 'bloqueos',
+            events  : [],                // lo llenamos luego
+            display : 'background',
+            color   : '#6c757d'          // gris oscuro
+          }
+        ],*/
+
+      /********************************************************************************* */
 
       // 1) carga las citas
       events(info, success, failure){
@@ -207,9 +267,54 @@ $(function(){
 
   calendar.render();
 
+  /********************************************************************************** */
+
+    // obtenemos las fuentes para poder actualizarlas
+   /* const srcHorario   = calendar.getEventSourceById('horarioTrabajo');
+    const srcBloqueos  = calendar.getEventSourceById('bloqueos');
+
+    $('#medico').on('select2:select', e => {
+      const medID = e.params.data.id;
+      $('#medico_id').val(medID);
+
+      // 1) Horario de atención → crea “eventos” recurrentes de fondo
+      fetch('../horarios/controller.php', {
+        method: 'POST',
+        body: new URLSearchParams({ accion:'listar', medico_id: medID })
+      })
+      .then(r => r.json())
+      .then(horas => {
+        srcHorario.removeAllEvents();
+        const evs = horas.map(h => ({
+          daysOfWeek: [ Number(h.dia_semana) ], // 0=domingo … 6=sábado
+          startTime : h.hora_inicio.slice(0,5),
+          endTime   : h.hora_fin    .slice(0,5),
+          display   : 'background'
+        }));
+        srcHorario.addEvents(evs);
+      });
+
+      // 2) Bloqueos → rangos puntuales de fondo
+      fetch('../bloqueos/controller.php', {
+        method: 'POST',
+        body: new URLSearchParams({
+          accion   : 'listar',
+          medico_id: medID,
+          start    : calendar.view.activeStart.toISOString(),
+          end      : calendar.view.activeEnd  .toISOString()
+        })
+      })
+      .then(r => r.json())
+      .then(bloqueos => {
+        srcBloqueos.removeAllEvents();
+        srcBloqueos.addEvents(bloqueos);
+      });
+    });*/
+
+  /********************************************************************************** */
 
   // obtén la fuente de bloqueos para poder actualizarla luego
-    const srcBloqueos = calendar.getEventSourceById('bloqueos');
+    const srcBloqueosx = calendar.getEventSourceById('bloqueos');
 
     // cada vez que elijan un médico…
     $('#medico').on('select2:select', e => {
@@ -244,8 +349,8 @@ $(function(){
       })
       .then(r=>r.json())
       .then(bloqueos => {
-        srcBloqueos.removeAllEvents();
-        srcBloqueos.addEvents(bloqueos);
+        srcBloqueosx.removeAllEvents();
+        srcBloqueosx.addEvents(bloqueos);
       });
     });
 
