@@ -5,18 +5,85 @@ header('Location:../../login.php');
 ?>
 <?php include '../../templates/navbar.php'; ?>
 <?php include '../../templates/header.php'; ?>
+<style>
+  .spin {
+    animation: girar 1s linear infinite;
+  }
+
+  @keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>
 
 <div class="container mt-4">
   <h2>Atención de Pacientes - Hoy</h2>
-  <table class="table" id="tablaAtencion">
-    <thead>
-      <tr>
-        <th>Hora</th><th>Paciente</th><th>Estado</th><th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+
+  <!-- 1. Las pestañas -->
+  <ul class="nav nav-tabs" id="tabsAtencion">
+    <li class="nav-item">
+      <a class="nav-link active" id="tab-turnos" data-bs-toggle="tab" href="#pane-turnos">Turnos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled" id="tab-dx" data-bs-toggle="tab" href="#pane-dx">Diagnóstico</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled" id="tab-evo" data-bs-toggle="tab" href="#pane-evo">Evolución</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled" id="tab-rec" data-bs-toggle="tab" href="#pane-rec">Recetas</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled" id="tab-exa" data-bs-toggle="tab" href="#pane-exa">Exámenes</a>
+    </li>
+  </ul>
+
+  <!-- 2. Contenido de cada pestaña -->
+  <div class="tab-content p-3 border border-top-0">
+    <!-- Pestaña: Turnos -->
+    <div class="tab-pane fade show active" id="pane-turnos">
+      <!-- Tu resumen actual -->
+      <div id="resumen" class="alert alert-info d-flex justify-content-between align-items-center" style="font-weight:bold;">
+        <span>📅 Hoy: <span id="resFecha"></span></span>
+        <span>👥 Atendidos: <span id="resAtendidos">0</span></span>
+        <span>⏱ Total tiempo: <span id="resTiempo">0</span> min</span>
+        <span>❌ Ausentes: <span id="resAusentes">0</span></span>
+        <button id="btnRecargar" class="btn btn-outline-primary btn-sm" title="Recargar información">🔄</button>
+      </div>
+
+      <!-- Tu tabla actual -->
+      <table class="table" id="tablaAtencion">
+        <thead>
+          <tr>
+            <th>Paciente</th><th>Hora Atención</th><th>Estado/Tiempo</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Pestaña: Diagnóstico -->
+    <div class="tab-pane fade" id="pane-dx">
+      <p>Aquí irá el formulario de diagnóstico.</p>
+    </div>
+
+    <!-- Pestaña: Evolución -->
+    <div class="tab-pane fade" id="pane-evo">
+      <p>Aquí irá la evolución del paciente.</p>
+    </div>
+
+    <!-- Pestaña: Recetas -->
+    <div class="tab-pane fade" id="pane-rec">
+      <p>Aquí irá la receta médica.</p>
+    </div>
+
+    <!-- Pestaña: Exámenes -->
+    <div class="tab-pane fade" id="pane-exa">
+      <p>Aquí se podrán pedir exámenes complementarios.</p>
+    </div>
+  </div>
 </div>
+
 
 <!-- Modal seguimiento 
 <div class="modal fade" id="modalAtencion" tabindex="-1">

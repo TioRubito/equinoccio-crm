@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabla = document.getElementById('tablaAtencion');
   let dt;
 
-    function cargarCitas() {
-        fetch('controller.php', {
-        method: 'POST',
-        body: new URLSearchParams({ accion: 'listar' })
-        })
+  function cargarCitas() {
+    fetch('controller.php', {
+      method: 'POST',
+      body: new URLSearchParams({ accion: 'listar' })
+    })
       .then(r => r.json())
       .then(data => {
         if (data.error) {
@@ -93,51 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('resTiempo').textContent = totalMinutos;
         document.getElementById('resAusentes').textContent = totalAusentes;
 
-        /******************************************************************************* */
-            // Revisar si hay alguna cita en atención (inicio sin fin)
-            const enAtencion = data.find(c => c.inicio && !c.fin);
-
-            if (enAtencion) {
-            ['dx', 'evo', 'rec', 'exa'].forEach(id => {
-                const tab = document.getElementById(`tab-${id}`);
-                if (tab) tab.classList.remove('disabled');
-            });
-
-            // Mostrar automáticamente Evolución
-            const tabDx = document.getElementById('tab-dx');
-            if (tabDx) new bootstrap.Tab(tabDx).show();
-            }
-
-        /*******************************************************************************/
 
         dt = new DataTable(tabla); // si usas DataTables
       });
-    }
+  }
 
-        // Acciones
-        window.iniciarAtencion = (cita_id) => {
-        if (!confirm("¿Desea iniciar la atención de este paciente?")) return;
+  // Acciones
+  window.iniciarAtencion = (cita_id) => {
+    if (!confirm("¿Desea iniciar la atención de este paciente?")) return;
 
-        fetch('controller.php', {
-            method: 'POST',
-            body: new URLSearchParams({ accion: 'iniciar', cita_id })
-        })
-        .then(r => r.json())
-        .then(() => {
-            cargarCitas();
-
-            // Habilita las pestañas ocultas
-            ['dx', 'evo', 'rec', 'exa'].forEach(id => {
-            const tab = document.getElementById(`tab-${id}`);
-            if (tab) tab.classList.remove('disabled');
-            });
-
-            // Activa automáticamente Evolución
-            const tabDx = document.getElementById('tab-dx');
-            if (tabDx) new bootstrap.Tab(tabDx).show();
-        });
-        };
-
+    fetch('controller.php', {
+      method: 'POST',
+      body: new URLSearchParams({ accion: 'iniciar', cita_id })
+    }).then(r => r.json()).then(() => cargarCitas());
+  };
 
   window.finalizarAtencion = (atencion_id) => {
     if (!confirm("¿Está seguro de finalizar la atención?")) return;
